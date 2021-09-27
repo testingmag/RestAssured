@@ -21,7 +21,7 @@ jobs:
       # Then run your tests!
       - run:
           name: Test
-          command: mvn test
+          command: mvn clean test -Durl="https://naasongs.co" -Dcat="Telugu" -Dmax="2" -Dperpage="100" -Dorder="desc" -Dby="date" -Dstartpage="1" && mvn clean test -Durl="https://naasongs.co" -Dcat="Telugu" -Dmax="2" -Dperpage="100" -Dorder="desc" -Dby="modified" -Dstartpage="1" && mvn clean test -Durl="https://naasongs.co" -Dcat="Telugu" -Dmax="100" -Dperpage="100" -Dorder="desc" -Dby="id" -Dstartpage="1"
 
 workflows:
   # Below is the definition of your workflow.
