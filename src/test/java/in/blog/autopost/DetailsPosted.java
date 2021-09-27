@@ -98,6 +98,7 @@ public class DetailsPosted extends Main {
 		jsonPath = this.response.jsonPath();
 		// logger.info(this.response.asString());
 		logger.info("Status of Post is :" + jsonPath.get("status").toString());
+		
 
 	}
 
