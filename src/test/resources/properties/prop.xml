@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>ID Updated</comment>
+<entry key="CTToken">Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvY2luaXR1bmVzLmluIiwiaWF0IjoxNjMyMjM1MDk2LCJuYmYiOjE2MzIyMzUwOTYsImV4cCI6MTYzMjgzOTg5NiwiZGF0YSI6eyJ1c2VyIjp7ImlkIjoxLCJkZXZpY2UiOiIiLCJwYXNzIjoiYzliYTRlNDlhMDg2YjRhOTRmZTZhZDg4OGE0NTM0ZjIifX19.YQtw6TF__HyzZkhmQguGPkxD6pJUi3oqjvhFNUg7cn0</entry>
+<entry key="naasongs.co">60240</entry>
+</properties>

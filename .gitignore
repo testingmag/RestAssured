@@ -1,0 +1,6 @@
+target/
+logs
+test-output
+*.bat
+.settings
+.gitattributes
