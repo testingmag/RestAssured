@@ -7,13 +7,13 @@
 	<Appenders>
 		<Console name="LogToConsole" target="SYSTEM_OUT">
 			<PatternLayout
-				pattern="%d{HH:mm:ss:SSS}: [%t]: %c{1}:%M === %m %n" />
+				pattern="%m %n" />
 		</Console>
 		<RollingRandomAccessFile
 			name="LogToRollingFile" fileName="logs/bloautopost-${date:yyyy-MM-dd_hh-mm-ss}.log"
 			filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
 			<PatternLayout>
-				<Pattern>%d:: %t: %C{1}:%M === %msg%n</Pattern>
+				<Pattern> %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy />

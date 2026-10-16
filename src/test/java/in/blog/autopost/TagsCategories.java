@@ -1,11 +1,14 @@
 package in.blog.autopost;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 /*import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;*/
+import java.util.StringJoiner;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -13,11 +16,13 @@ import org.apache.logging.log4j.Logger;
 
 import in.blog.utilities.Constants;
 import in.blog.utilities.RestRequest;
+import in.blog.utilities.StringUtilities;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 public class TagsCategories extends Main {
 	private List<Integer> originalTags;
+	private List<Integer> originalCat;
 	private RestRequest restRequest;
 	private Response response;
 	private JsonPath jsonPath;
@@ -27,8 +32,10 @@ public class TagsCategories extends Main {
 	private static final Logger logger = LogManager.getLogger(TagsCategories.class);
 
 	public TagsCategories(int postID) {
-		this.originalTags = new ArrayList<>();
+		this.originalTags = new ArrayList<>();		
 		this.originalTags = super.getOriginalJson().get("find {it.id == " + postID + "}.tags");
+		this.originalCat = new ArrayList<>();
+		this.originalCat = super.getOriginalJson().get("find {it.id == " + postID + "}.categories");
 		logger.info("Original Tgas are :" + this.originalTags);
 		verifyTags();
 		searchCategories();
@@ -49,15 +56,18 @@ public class TagsCategories extends Main {
 		this.tagIds = new ArrayList<Integer>();
 		List<String> tagsToBeCreated = fetchTagSlugs();
 
+		logger.info("List of Tags:" + tagsToBeCreated.toString());
 		for (String slug : tagsToBeCreated) {
 			String name = jsonPath.get("find {it.slug == \"" + slug + "\"}.name");
-			logger.info("Tags created for Slug :" + slug);
+
 			restRequest.postRequest(Constants.CT + Constants.TAGS, super.getHeader(), createBody(name, slug));
 			response = restRequest.getResponse();
 			JsonPath jPath = response.jsonPath();
 			this.tagIds.add(jPath.getInt("id"));
-
+			// logger.info("Tags created for Slug :" + slug);
 		}
+		
+		
 		logger.info("Tags to be added to post are :" + tagIds.toString());
 	}
 
@@ -72,23 +82,25 @@ public class TagsCategories extends Main {
 		tagResponse = restRequest.getResponse();
 		jsonPath = tagResponse.jsonPath();
 		List<String> list = jsonPath.getList("slug");
-		tagList = list.toString();
-		tagList = tagList.substring(1, tagList.indexOf("]"));
-		list = compareTagSlugs(list, tagList);
+
+		list = compareTagSlugs(list);
 
 		return list;
 
 	}
 
-	private List<String> compareTagSlugs(List<String> targetTagSlugs, String tagSlugList) {
+	private List<String> compareTagSlugs(List<String> targetTagSlugs) {
 		logger.info("Checking for Existing Tags");
-		List<String> diff = new ArrayList<String>(targetTagSlugs);
+
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			logger.info(Level.FATAL,e);
+			logger.info(Level.FATAL, e);
 		}
-		restRequest.getRequest(Constants.CT + Constants.TAGS + "?slug=" + tagSlugList);
+
+		String tagSlugList = StringUtilities.encodingString(targetTagSlugs);
+
+		restRequest.getRequestParam(Constants.CT + Constants.TAGS , tagSlugList);
 		Response response = restRequest.getResponse();
 		JsonPath tagPath = response.jsonPath();
 		List<Integer> existingIDS = tagPath.getList("id");
@@ -97,9 +109,10 @@ public class TagsCategories extends Main {
 			tagIds = existingIDS;
 		}
 
-		diff.removeAll(tagPath.getList("slug"));
-		logger.info("Tags to be created are :" + diff.toString());
-		return diff;
+		targetTagSlugs.removeAll(tagPath.getList("slug"));
+
+		logger.info("Tags to be created are :" + targetTagSlugs.toString());
+		return targetTagSlugs;
 	}
 
 	private HashMap<String, Object> createBody(String name, String slug) {
@@ -110,9 +123,26 @@ public class TagsCategories extends Main {
 	}
 
 	private void searchCategories() {
-		String catSlug = Constants.SLUGCAT;
+		
+		
+		String catList = this.originalCat.toString();
+		catList = catList.substring(1, catList.indexOf("]"));
+
+		restRequest.getRequest(Constants.FETCHURL + Constants.CAT + "?include=" +catList);
+		tagResponse = restRequest.getResponse();
+		jsonPath = tagResponse.jsonPath();
+		List<String> list = jsonPath.getList("slug");
+		String catSlug;
+		if(!list.isEmpty()){
+			catSlug = list.toString().substring(1, list.toString().indexOf("]"));
+			restRequest.getRequestParam(Constants.CT + Constants.CAT,catSlug );
+		}
+		
+		else{
+		 catSlug = Constants.SLUGCAT;
 		logger.info("Checking for Existing Category");
 		restRequest.getRequest(Constants.CT + Constants.CAT + "?slug=" + catSlug.toLowerCase());
+		}
 		Response catResponse = restRequest.getResponse();
 
 		JsonPath catPath = catResponse.jsonPath();

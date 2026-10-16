@@ -13,7 +13,8 @@ public class Constants {
 	public static final String TAGS = "/wp-json/wp/v2/tags";
 	public static final String CAT = "/wp-json/wp/v2/categories";
 	
-	public static final String CT = "https://cinitunes.in";
+	
+	public static String CT = "https://cinitunes.in";
 	public static final String MB = "https://myblogie.in";
 	//public static final String CT = "https://www.myblogie.in/staging";
 	public static String FETCHURL;

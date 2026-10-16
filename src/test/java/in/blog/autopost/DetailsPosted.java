@@ -2,16 +2,19 @@ package in.blog.autopost;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import in.blog.utilities.Constants;
 import in.blog.utilities.RestRequest;
+import in.blog.utilities.StringUtilities;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
@@ -46,7 +49,10 @@ public class DetailsPosted extends Main {
 		originalSlug = this.originalJsonPath.get("find {it.id == " + this.originalPostID + "}.slug");
 		restRequest = new RestRequest();
 		logger.info("Searching for Slug :" + originalSlug);
-		restRequest.getRequest(Constants.CT + Constants.POSTS + "?slug=" + originalSlug);
+
+		originalSlug = StringUtilities.encodingString(originalSlug);
+
+		restRequest.searchRequest(Constants.CT + Constants.POSTS, originalSlug);
 		response = restRequest.getResponse();
 		jsonPath = response.jsonPath();
 		List<String> modDat = jsonPath.get("modified");
@@ -79,8 +85,8 @@ public class DetailsPosted extends Main {
 		this.content = originalJsonPath.get("find {it.id == " + this.originalPostID + "}.content.rendered");
 		addAudio();
 		logger.info("Updating post with ID :" + postIDS.get(0));
-		postBody.put("content", this.content.replace("from naasongs", "from cinitunes")
-				.replaceAll("Naa Songs", "Cinitunes").replaceAll("naasongs", "cinitunes"));
+		postBody.put("content", this.content.replace("sensongsmp3.live", "cinitunes.in")
+				.replaceAll("Naa Songs", "Cinitunes").replaceAll(" naasongs", " cinitunes"));
 		postBody.put("date", originalJsonPath.get("find {it.id == " + this.originalPostID + "}.date").toString());
 		// UPDATING POST WHEN THERE IS A MODIFICATION
 		postData(Constants.CT + Constants.POSTS + "/" + postIDS.get(0));
@@ -98,25 +104,28 @@ public class DetailsPosted extends Main {
 		jsonPath = this.response.jsonPath();
 		// logger.info(this.response.asString());
 		logger.info("Status of Post is :" + jsonPath.get("status").toString());
-		
 
 	}
 
 	private void setPostDetails() {
 
 		this.postBody = new HashMap<String, Object>();
-		postBody.put("title", originalJsonPath.get("find {it.id == " + this.originalPostID + "}.title.rendered"));
+		String title = originalJsonPath.get("find {it.id == " + this.originalPostID + "}.title.rendered");
+		postBody.put("title", title);
 		postBody.put("slug", originalSlug);
 		postBody.put("status", "publish");
 		if (site.equals("naasongs.co")) {
 			postBody.put("date", originalJsonPath.get("find {it.id == " + this.originalPostID + "}.date").toString());
 			this.content = originalJsonPath.get("find {it.id == " + this.originalPostID + "}.content.rendered");
 		} else {
-
+			postBody.put("date", originalJsonPath.get("find {it.id == " + this.originalPostID + "}.date").toString());
+			this.content = originalJsonPath.get("find {it.id == " + this.originalPostID + "}.content.rendered");
 		}
 
+		imgInPost();
+		replaceNonMP3URL(title);
 		addAudio();
-		postBody.put("content", this.content.replace("from naasongs", "from cinitunes"));
+		postBody.put("content",this.content);
 		postBody.put("excerpt", originalJsonPath.get("find {it.id == " + this.originalPostID + "}.excerpt.rendered"));
 		postBody.put("format", "standard");
 		postBody.put("featured_media", imagePosting.getImageID());
@@ -140,18 +149,71 @@ public class DetailsPosted extends Main {
 
 	private void addAudio() {
 
-		String[] l = org.apache.commons.lang3.StringUtils.substringsBetween(this.content, "<a href=\"", ".mp3");
+		Matcher matcher = StringUtilities.patternMatcher("https?://[^\\s]+", this.content);
 
-		String[] b = org.apache.commons.lang3.StringUtils.substringsBetween(this.content, ".mp3", "</a>");
-		if (l != null)
-		for (int i = 0; i < l.length; i++) {	
+		List<String> urls = new ArrayList<>();
+		while (matcher.find()) {
+			String url = matcher.group();
 
-			if (!this.content.contains(l[i] + b[i] + "</a>" + "\n<audio controls=\"\" src=\"" + l[i]
-					+ ".mp3\" controlslist=\"nodownload\"></audio>"))
-				this.content = this.content.replace(l[i] + ".mp3" + b[i] + "</a>", l[i] + b[i] + "</a>"
-						+ "\n<audio controls=\"\" src=\"" + l[i] + ".mp3\" controlslist=\"nodownload\"></audio>");
+			url = url.replaceFirst("</a>.*$", "</a>");
+			// logger.info("URL : {}", url);
+
+			urls.add(url);
 
 		}
+
+		for (String url : urls) {
+			if (!this.content.contains(url + "\n<audio controls") && url.contains(".mp3\"")) {
+				String mp3Link = url.replaceFirst("mp3\".*", "mp3\"");
+
+				this.content = StringUtilities.contentReplace(this.content, url,
+						url + "\n<audio controls=\"\" src=\"" + mp3Link + "controlslist=\"nodownload\"></audio>");
+
+			}
+
+		}
+
+		logger.info("Audio Controls Added");
+	}
+
+	private void imgInPost() {
+
+		String[] l = org.apache.commons.lang3.StringUtils.substringsBetween(this.content, "<img loading=\"lazy\"",
+				"/>");
+
+		if (l != null)
+			for (int i = 0; i < l.length; i++) {
+
+				this.content = StringUtilities.contentReplace(this.content, "<img loading=\"lazy\"" + l[i]+"/>", "");
+				// logger.info(this.content);
+			}
+		logger.info("Post Image Replace");
+	}
+
+	private void replaceNonMP3URL(String value) {
+
+		Matcher matcher = StringUtilities.patternMatcher("https?://[^\\s\"]+", this.content);
+
+		List<String> urls = new ArrayList<>();
+		while (matcher.find()) {
+			urls.add(matcher.group());
+
+		}
+
+		for (String url : urls) {
+
+			if (!url.trim().toLowerCase().endsWith(".mp3")) {
+				logger.info("URL to be replaced: {}", url);
+				this.content = StringUtilities.contentReplace(this.content, "sensongsmp3.live", "cinitunes.in");
+				if (!value.isBlank())
+					this.content = StringUtilities.contentReplace(this.content, "telugump3s.*.>",
+							"tag/telugu-" + value.charAt(0) + "\">Download</a>");
+
+				logger.info("URL's replaced: {}", url);
+			}
+		}
+		logger.info("Non Mp3 URL's Replace");
+
 	}
 
 }
