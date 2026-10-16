@@ -16,12 +16,22 @@
 		<maven.compiler.target>15</maven.compiler.target>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<url>https://sensongsmp3.live</url>
+		<cat>Telugu</cat>
+		<max>2</max>
+		<perpage>100</perpage>
+		<order>asc</order>
+		<by>id</by>
+		<startpage>1</startpage>
+		<postsite>https://cinitunes.infinityfree.me</postsite>
 	</properties>
 
 	<dependencies>
-		<!-- <dependency> <groupId>com.google.code.gson</groupId> <artifactId>gson</artifactId> 
+		<!-- <dependency> <groupId>com.google.code.gson</groupId>
+		<artifactId>gson</artifactId> 
 			<version>2.8.5</version> </dependency> -->
-		<!-- <dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-lang3</artifactId> 
+		<!-- <dependency> <groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId> 
 			<version>3.11</version> </dependency> -->
 
 		<dependency>
@@ -41,9 +51,9 @@
 			<version>2.4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>4.0.0-alpha-7</version>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>playwright</artifactId>
+			<version>1.48.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.rest-assured</groupId>
@@ -75,10 +85,12 @@
 			<artifactId>commons-configuration2</artifactId>
 			<version>2.7</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.apache.poi</groupId> <artifactId>poi</artifactId> 
+		<!-- <dependency> <groupId>org.apache.poi</groupId>
+		<artifactId>poi</artifactId> 
 			<version>4.1.2</version> </dependency> -->
 
-		<!-- <dependency> <groupId>org.apache.poi</groupId> <artifactId>poi-ooxml</artifactId> 
+		<!-- <dependency> <groupId>org.apache.poi</groupId>
+		<artifactId>poi-ooxml</artifactId> 
 			<version>4.1.2</version> </dependency> -->
 
 	</dependencies>
@@ -89,6 +101,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M4</version>
 				<configuration>
+					<forkCount>0</forkCount>
 
 					<systemPropertyVariables>
 						<exeURL>${url}</exeURL>
@@ -98,16 +111,16 @@
 						<order>${order}</order>
 						<orderby>${by}</orderby>
 						<startPage>${startpage}</startPage>
+						<postSite>${postsite}</postSite>
 
-						<!-- Test Properties -->
-						<!-- <exeURL>https://naasongs.co</exeURL> <exeCAT>Telugu</exeCAT> <exePages>2</exePages> 
-							<exePPP>22</exePPP> <order>desc</order> <orderby>date</orderby> <startPage>2</startPage> -->
-							
+
 					</systemPropertyVariables>
 
 					<skipTests>false</skipTests>
-					<!-- <properties> <property> <name>usedefaultlisteners</name> <value>true</value> 
-						</property> <property> <name>listener</name> <value>com.fellow.uiautomation.runners.SuiteAlterer</value> 
+					<!-- <properties> <property>
+					<name>usedefaultlisteners</name> <value>true</value> 
+						</property> <property> <name>listener</name>
+					<value>com.fellow.uiautomation.runners.SuiteAlterer</value> 
 						</property> </properties> -->
 
 					<suiteXmlFiles>

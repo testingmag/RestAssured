@@ -15,6 +15,14 @@ public class RestRequest {
 	public void getRequest(String getURL) {
 		setResponse(given().when().get(getURL));
 	}
+	
+	public void getRequestParam(String getURL, String param) {
+		setResponse(given().urlEncodingEnabled(false).queryParam("slug", param).when().get(getURL));
+	}
+	public void searchRequest(String getURL, String param) {
+		setResponse(given().urlEncodingEnabled(false).queryParam("search", param).when().get(getURL));
+	}
+
 
 	public void getRequest(String getURL, String jsonObject) {
 
@@ -52,6 +60,15 @@ public class RestRequest {
 			JSONObject json = new JSONObject(object);
 			setResponse(given().contentType(ContentType.JSON).when().body(json.toString()).post(postURL));
 		}
+		
+
+	}
+	
+ public void postReqCookie(String postURL, HashMap<String, Object> object, String cookie) {
+		
+		
+		setResponse(given().headers(object).cookie("__test",cookie).queryParam("i", 1).post(postURL));
+		
 		
 
 	}

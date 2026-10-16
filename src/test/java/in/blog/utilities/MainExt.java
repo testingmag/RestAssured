@@ -3,6 +3,7 @@ package in.blog.utilities;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Properties;
 import org.apache.logging.log4j.Level;
@@ -26,16 +27,20 @@ public class MainExt extends Main {
 		postsPerPage = Integer.parseInt(System.getProperty("exePPP"));
 		logger.info("Posts per Page :" + postsPerPage);
 		order = System.getProperty("order");
-		logger.info("order :" + order);
+		logger.info("order :" + order); 
 		orderBY = System.getProperty("orderby");
 		logger.info("Order By :" + orderBY);
 		startPage = Integer.parseInt(System.getProperty("startPage"));
 		logger.info("Start Page :" + startPage);
+		if(!System.getProperty("postSite").isEmpty()  && System.getProperty("postSite") !=null)
+		Constants.CT = System.getProperty("postSite");
+		logger.info("Start Page :" + Constants.CT);
 
 	}
 
 	public void readProp() {
 		try {
+		
 			input = Main.class.getResourceAsStream("/properties/prop.xml");
 
 			prop.loadFromXML(input);
@@ -56,11 +61,27 @@ public class MainExt extends Main {
 		this.response = restRequest.getResponse();
 		this.jsonPath = response.jsonPath();
 		logger.info("Token Status: " + jsonPath.get("statusCode").toString());
+		 
 		if (jsonPath.getInt("statusCode") != 200)
+			
 			generateNewToken();
 		
 
 	}
+	
+	public void refreshToken() {
+		HashMap<String, Object> postBody = new HashMap<String, Object>();
+		postBody.put("refresh_token", prop.get("RFToken"));
+		
+		this.restRequest.postRequest(Constants.CT + "/wp-json/jwt-auth/v1/token/refresh", postBody,"");
+		this.response = restRequest.getResponse();
+		//logger.info(this.response.asString());
+		String token = "Bearer " + this.response.jsonPath().get("data.token");
+		logger.info("Token Refreshed: "+token);
+		prop.setProperty("CTToken", token);
+		writeProp("CTToken", token);
+	}
+	
 
 	private void generateNewToken() {
 		HashMap<String, Object> postBody = new HashMap<String, Object>();
@@ -69,10 +90,12 @@ public class MainExt extends Main {
 		this.restRequest.postRequest(Constants.CT + "/wp-json/jwt-auth/v1/token", postBody,"");
 		this.response = restRequest.getResponse();
 		//logger.info(this.response.asString());
+		String rfToken = response.getCookie("refresh_token");
 		String token = "Bearer " + this.response.jsonPath().get("data.token");
 		logger.info("New Token Generated: "+token);
 		prop.setProperty("CTToken", token);
 		writeProp("CTToken", token);
+		writeProp("RFToken", rfToken);
 
 	}
 
@@ -89,7 +112,7 @@ public class MainExt extends Main {
 			file = new File(System.getProperty("user.dir") + "/src/test/resources/properties/prop.xml");
 			out = new FileOutputStream(file);
 			logger.info("Property file opened Succesfully");
-			propUpdate.storeToXML(out, "ID Updated");
+			propUpdate.storeToXML(out, "ID Updated on "+ LocalDate.now());
 			out.close();
 		}
 
@@ -97,14 +120,6 @@ public class MainExt extends Main {
 			logger.catching(Level.FATAL, e);
 		}
 
-	}
-
-	public void closeItems() {
-		prop.clear();
-		if (!site.equals("naasongs.com"))
-			sb.closeBrowser();
-		logger.info(
-				"\n------------------------------------------End Of Execution------------------------------------------");
 	}
 
 }

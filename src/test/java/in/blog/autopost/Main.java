@@ -11,13 +11,13 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import in.blog.utilities.Constants;
 import in.blog.utilities.MainExt;
+import in.blog.utilities.PlaywirghtUtil;
 import in.blog.utilities.RestRequest;
-import in.blog.utilities.SeleniumBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 public class Main {
-	
+
 	private HashMap<String, Object> header;
 	private static JsonPath jsonPath;
 	protected static final Logger logger = LogManager.getLogger(Main.class);
@@ -27,7 +27,6 @@ public class Main {
 	protected static int postsPerPage;
 	protected static int startPage;
 	protected static Properties prop = new Properties();
-	protected static SeleniumBuilder sb;
 	private int lastID;
 	protected static String site;
 	protected static int newlastID;
@@ -39,15 +38,22 @@ public class Main {
 		ext = new MainExt();
 		ext.beforTest();
 		ext.readProp();
+		
+		if (Constants.CT.contains("infinityfree"));
+		new PlaywirghtUtil();
 		ext.verifyToken();
+		
 		site = Constants.FETCHURL.substring(Constants.FETCHURL.indexOf("//") + 2);
 
-		lastID = Integer.parseInt(prop.getProperty(site));
-		
-		logger.info("Last Run First ID :" + lastID);
-		
-		if(!site.equalsIgnoreCase("naasongs.co"))
-			sb = new SeleniumBuilder();
+		if (site.equalsIgnoreCase("naasongs.co")) {
+			lastID = Integer.parseInt(prop.getProperty(site));
+
+			logger.info("Last Run First ID :" + lastID);
+		}
+
+		/*
+		 * if(!site.equalsIgnoreCase("naasongs.co")) sb = new SeleniumBuilder();
+		 */
 	}
 
 	@Test
@@ -86,8 +92,7 @@ public class Main {
 			loopPosts(ids);
 
 		}
-		
-		
+
 	}
 
 	private void loopPosts(List<Integer> ids) {
@@ -101,7 +106,7 @@ public class Main {
 
 				if (newlastID < id) {
 					newlastID = id;
-					ext.writeProp(site,String.valueOf(newlastID));
+					ext.writeProp(site, String.valueOf(newlastID));
 				}
 
 			} else if (orderBY.equalsIgnoreCase("id")) {
@@ -110,7 +115,10 @@ public class Main {
 				break;
 			}
 
+			
+			if(orderBY.equalsIgnoreCase("id") && lastID < id)
 			new DetailsPosted(id);
+			
 			this.postNumber = this.postNumber + 1;
 		}
 

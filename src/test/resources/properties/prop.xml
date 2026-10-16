@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>ID Updated</comment>
-<entry key="CTToken">Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvY2luaXR1bmVzLmluIiwiaWF0IjoxNjMyMjM1MDk2LCJuYmYiOjE2MzIyMzUwOTYsImV4cCI6MTYzMjgzOTg5NiwiZGF0YSI6eyJ1c2VyIjp7ImlkIjoxLCJkZXZpY2UiOiIiLCJwYXNzIjoiYzliYTRlNDlhMDg2YjRhOTRmZTZhZDg4OGE0NTM0ZjIifX19.YQtw6TF__HyzZkhmQguGPkxD6pJUi3oqjvhFNUg7cn0</entry>
-<entry key="naasongs.co">60240</entry>
+<comment>ID Updated on 2026-10-15</comment>
+<entry key="RFToken">1.b09da572a5fcd18b4a99ebaa1ba7c1f44b72ba05bcf7ccd02c759bbaa047c157</entry>
+<entry key="CTToken">Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2Npbml0dW5lcy5pbiIsImlhdCI6MTc5MjA4MDAyMywibmJmIjoxNzkyMDgwMDIzLCJleHAiOjE3OTI2ODQ4MjMsImRhdGEiOnsidXNlciI6eyJpZCI6MSwiZGV2aWNlIjoiIiwicGFzcyI6IjI4YWIwOTc3ZjNjNDkyZDVmNGUxNTFlMzE2YzllNzZhIn19fQ.swiLmL2Gv-VvNvt7dzDbOG1uSQid_NoK8nI6CZmVGx</entry>
+<entry key="naasongs.co">0</entry>
+<entry key="sensongsmp3.live">1106</entry>
 </properties>

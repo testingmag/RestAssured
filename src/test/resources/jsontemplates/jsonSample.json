@@ -1,0 +1,15 @@
+{
+  "name": {
+    "firstname": "${firstName}",
+    "lastname": "${lastName}"
+  },
+  "mobile": "${mobile}",
+  "role":  ${role},
+  "address": {
+    "country": "${country}",
+    "state": "${state}",
+    "city": "${city}",
+    "street": "${street}"
+  },
+  "email": "${email}"
+}

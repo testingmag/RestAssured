@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import in.blog.utilities.Constants;
 import in.blog.utilities.RestRequest;
+import in.blog.utilities.StringUtilities;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
@@ -172,7 +173,7 @@ public class ImagePosting extends Main {
 	private void deleteBufferedImage() {
 		try {
 			logger.info("Deleting file created at temp location :" + file.getPath().toString());
-			Files.delete(file.toPath());
+			Files.delete(file.getAbsoluteFile().toPath());
 		} catch (IOException e) {
 
 			logger.info(Level.FATAL, e);
@@ -183,15 +184,18 @@ public class ImagePosting extends Main {
 	private int searchImage() {
 		
 		setImageName();
-		logger.info("Checking for Existing Image");
-		restRequest.getRequest(Constants.CT + Constants.MEDIA + "?slug="
-				+ this.imageName.toLowerCase().substring(0, this.imageName.indexOf(".")));
+		logger.info("Checking for Existing Image: {}", imageName);
+		
+		this.imageName = StringUtilities.encodingString(imageName);
+		if(imageName.toLowerCase().endsWith(".jpg"))
+			imageName = StringUtilities.contentReplace(imageName,".jpg",".png");
+		restRequest.searchRequest(Constants.CT + Constants.MEDIA ,this.imageName.toLowerCase().substring(0, this.imageName.indexOf(".")));
 		Response imageResponse = restRequest.getResponse();
 
 		this.imageID = -1;
 		JsonPath tagPath = imageResponse.jsonPath();
 		List<Integer> imageIDs = tagPath.get("id");
-		if (!imageIDs.isEmpty()) {
+		if (imageIDs != null && !imageIDs.isEmpty()) {
 			
 			this.imageID = imageIDs.get(0);
 			logger.info("Existing Image Found: "+this.imageID);
